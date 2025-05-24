@@ -202,6 +202,7 @@ export const getVehicleBrands = async (req, res) => {
 export const filterData = async (req, res) => {
   try {
     // Extract query parameters
+    console.log("-----------------");
     const {
       brand,
       model,
@@ -223,7 +224,7 @@ export const filterData = async (req, res) => {
 
     // Build the filter object dynamically
     const filter = {};
-
+    console.log(">>>>>><<<<<<<<<");
     if (brand && brand != "undefined") filter.brand = brand;
     if (model && model != "undefined") filter.model = model;
     if (color && color != "undefined") filter.color = color;

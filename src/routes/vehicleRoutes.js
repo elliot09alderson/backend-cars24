@@ -25,9 +25,9 @@ vehicleRouter.post(
   addVehicle
 );
 vehicleRouter.get("/vehicles", getVehicles);
-vehicleRouter.get("/vehicles/:id", getAgentVehicleAds);
+vehicleRouter.get("/vehicles/filter-data", filterData);
 vehicleRouter.get("/vehicles/filter/:brand", getModelsByBrand);
 vehicleRouter.get("/vehicles/brands", getVehicleBrands);
-vehicleRouter.get("/vehicles/filter", filterData);
+vehicleRouter.get("/vehicles/:id", getAgentVehicleAds);
 vehicleRouter.get("/vehicles/detail/:slug", vehicleDetails);
 vehicleRouter.get("/vehicles/search/:search", searchVehicles);
