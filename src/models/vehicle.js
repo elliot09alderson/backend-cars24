@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { boolean } from "zod";
 
 const VehicleSchema = new mongoose.Schema(
   {
@@ -43,6 +44,11 @@ const VehicleSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    assured: {
+      type: Boolean,
+      default: false,
+    },
+    commision: { type: Number, default: 2 },
     bodyType: {
       type: String,
       enum: ["suv", "sedan", "hatchback", "car"],
@@ -76,10 +82,13 @@ const VehicleSchema = new mongoose.Schema(
     color: {
       type: String,
     },
+    isDisabled: {
+      type: String,
+    },
   },
   {
     timestamps: true, // adds createdAt and updatedAt
   }
 );
 
-export const VehicleModel = mongoose.model("Car", VehicleSchema);
+export const VehicleModel = mongoose.model("Vehicle", VehicleSchema);

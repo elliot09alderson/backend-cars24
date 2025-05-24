@@ -3,7 +3,9 @@ import { VehicleModel } from "../models/vehicle.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import { slugify } from "../utils/slugify.js";
+import { Agent } from "../models/agent.js";
 export const addVehicle = async (req, res) => {
+  console.log("uploading....");
   try {
     const parseIfNumber = (value) =>
       isNaN(value) ? value : parseInt(value, 10);
@@ -21,11 +23,16 @@ export const addVehicle = async (req, res) => {
       location,
       price,
       fuelType,
+      transmission,
       owners,
       serialNo,
     } = req.body;
+
     const slug = slugify(name, model);
+    console.log("crossed .. ");
+    console.log(req.files);
     const files = req.files["vehicleimages"];
+    console.log("2nd crossed .. ");
     const safeToLowerCase = (value) => {
       return typeof value === "string" ? value.toLowerCase() : value;
     };
@@ -37,6 +44,7 @@ export const addVehicle = async (req, res) => {
       model: safeToLowerCase(model),
       year: parseIfNumber(year),
       serialNo,
+      transmission,
       totalKmDriven: parseIfNumber(totalKmDriven),
       location,
       price: parseIfNumber(price),
@@ -53,19 +61,19 @@ export const addVehicle = async (req, res) => {
     };
 
     const uploadResults = [];
-    if (!req.files["thumbnail"]) {
-      return res.json({ error: "please provide thumbnail also" });
-    }
-    const file = req.files["thumbnail"][0];
+    let thumbnailImg = "";
+    if (req.files["thumbnail"]) {
+      const file = req.files["thumbnail"][0];
 
-    const result = await cloudinary.uploader.upload(file.path, {
-      folder: "vehicles",
-      resource_type: "image",
-      format: "jpg",
-      quality: "auto:low",
-      transformation: cropParams,
-    });
-    const thumbnailImg = result.secure_url;
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder: "vehicles",
+        resource_type: "image",
+        format: "jpg",
+        quality: "auto:low",
+        transformation: cropParams,
+      });
+      thumbnailImg = result.secure_url;
+    }
 
     try {
       if (files) {
@@ -98,11 +106,24 @@ export const addVehicle = async (req, res) => {
         message: err.message,
       });
     }
+
+    thumbnailImg = uploadResults[0];
+    let isVerified = req.agent?.isVerified;
     const item = await VehicleModel.create({
       ...data,
+      assured: isVerified,
       images: uploadResults,
       thumbnail: thumbnailImg,
     });
+    const updatedAgent = await Agent.findByIdAndUpdate(
+      { _id: req.agent._id },
+      {
+        $push: {
+          myVehicleAds: item._id,
+        },
+      },
+      { new: true }
+    );
     return res.status(201).json({
       data: item,
       message: "product added successfully",
@@ -117,6 +138,17 @@ export const addVehicle = async (req, res) => {
 export const getVehicles = async (req, res) => {
   try {
     const vehicles = await VehicleModel.find();
+    res.json({ message: "vechicles fetched successfully", data: vehicles });
+  } catch (error) {
+    return res.status(400).json({
+      message: error.message,
+    });
+  }
+};
+export const getAgentVehicleAds = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const vehicles = await Agent.findById(id).populate("myVehicleAds");
     res.json({ message: "vechicles fetched successfully", data: vehicles });
   } catch (error) {
     return res.status(400).json({

@@ -10,6 +10,7 @@ import { adRouter } from "./routes/adRoutes.js";
 import { authRouter } from "./routes/authRouter.js";
 import { customerRouter } from "./routes/customer.js";
 import { AdminRouter } from "./routes/admin.js";
+import { agentRouter } from "./routes/agentRouter.js";
 
 export const app = express();
 app.use(
@@ -38,6 +39,8 @@ connectDB();
 
 app.use("/api/v1/", vehicleRouter);
 app.use("/api/v1/", adRouter);
+app.use("/api/v1/agent", agentRouter);
+
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/customer", customerRouter);
 app.use("/api/v1/admin", AdminRouter);

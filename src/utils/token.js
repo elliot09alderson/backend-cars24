@@ -16,9 +16,10 @@ export const verifyToken = (req, res, next) => {
 
 // Generate Access Token
 export const generateAccessToken = (user) => {
+  console.log(process.env.JWT_SECRET);
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role },
-    process.env.ACCESS_TOKEN_SECRET,
+    process.env.JWT_SECRET,
     {
       expiresIn: "7d", // Short-lived access token
     }
@@ -27,11 +28,7 @@ export const generateAccessToken = (user) => {
 
 // Generate Refresh Token
 export const generateRefreshToken = (user) => {
-  return jwt.sign(
-    { id: user._id, email: user.email },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: "7d", // Long-lived refresh token
-    }
-  );
+  return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
+    expiresIn: "7d", // Long-lived refresh token
+  });
 };

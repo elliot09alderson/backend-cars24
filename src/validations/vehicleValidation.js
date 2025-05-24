@@ -4,6 +4,7 @@ const vehicleValidationSchema = z.object({
   name: z.string().min(1, "Name is required"),
   brand: z.string().min(1, "Brand is required"),
   model: z.string().min(1, "Model is required"),
+  transmission: z.string().min(1, "Model is required"),
   slug: z.string().min(1, "Slug is required"),
 
   serialNo: z.string().min(1, "serialNo is required").optional(),
