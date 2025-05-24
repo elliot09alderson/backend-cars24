@@ -21,7 +21,7 @@ const requirementSchema = z.object({
   vehicle: z.string().min(3, { message: "Vechile Model is required" }),
   from: z.string().optional(),
   to: z.string().optional(),
-  budget: z.string().optional(), // Address is optional
+  budget: z.number().optional(), // Address is optional
   description: z.string(),
   phoneNumber: z
     .string()
@@ -107,28 +107,45 @@ export async function createCustomer(req, res) {
   }
 }
 export async function createRequirement(req, res) {
-  console.log(req.body);
-  const { fromDate, carModel, toDate, budget, description, phoneNumber } =
-    req.body;
-  const to = toDate;
-  const from = fromDate;
-  const vehicle = carModel;
-  const parsed = requirementSchema.safeParse({
-    vehicle,
-    from,
-    to,
-    budget,
-    description,
-    phoneNumber,
-  });
+  try {
+    console.log("body =======>>>", req.body);
+    const { fromDate, carModel, toDate, budget, description, phoneNumber } =
+      req.body;
 
-  const requirement = await Requirement.create(parsed.data);
+    const to = toDate;
+    const from = fromDate;
+    const vehicle = carModel;
+    const number = phoneNumber.toString();
+    const parsed = requirementSchema.safeParse({
+      vehicle,
+      from,
+      to,
+      budget,
+      description,
+      phoneNumber: number,
+    });
 
-  if (requirement) {
+    if (!parsed.success) {
+      console.error("Validation Error ===>", parsed.error);
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: parsed.error.format(),
+      });
+    }
+
+    const requirement = await Requirement.create(parsed.data);
+
     return res.status(201).json({
       success: true,
-      message: "requirement registered successfully",
+      message: "Requirement registered successfully",
       data: requirement,
+    });
+  } catch (error) {
+    console.error("Server Error ===>", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
     });
   }
 }
